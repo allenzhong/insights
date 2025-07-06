@@ -52,7 +52,7 @@ router.get("/insights/:id", (ctx) => {
   ctx.response.status = 200;
 });
 
-router.post("/insights/create", async (ctx) => {
+router.post("/insights", async (ctx) => {
   try {
     // Debug: log the raw request body as text
     const rawText = await ctx.request.body.text();
@@ -85,7 +85,7 @@ router.post("/insights/create", async (ctx) => {
   }
 });
 
-router.delete("/insights/delete/:id", (ctx) => {
+router.delete("/insights/:id", (ctx) => {
   try {
     const params = ctx.params as Record<string, any>;
     const id = Number(params.id);

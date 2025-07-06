@@ -5,49 +5,38 @@ import { Modal, type ModalProps } from "../modal/modal.tsx";
 import styles from "./add-insight.module.css";
 
 type AddInsightProps = ModalProps & {
-  onInsightAdded?: () => void;
+  onSubmit: (data: { brand: number; text: string }) => Promise<void>;
+  isSubmitting?: boolean;
 };
 
-export const AddInsight = (props: AddInsightProps) => {
+export const AddInsight = ({
+  onSubmit,
+  isSubmitting,
+  ...props
+}: AddInsightProps) => {
   const [brand, setBrand] = useState(BRANDS[0].id);
   const [text, setText] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const addInsight = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!text.trim()) return;
 
-    setIsSubmitting(true);
-
     try {
-      const response = await fetch("/api/insights/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ brand, text: text.trim() }),
-      });
-
-      if (response.ok) {
-        setText("");
-        setBrand(BRANDS[0].id);
-        props.onInsightAdded?.();
-        props.onClose?.();
-      } else {
-        console.error("Failed to add insight");
-      }
+      await onSubmit({ brand, text: text.trim() });
+      // set default values
+      setText("");
+      setBrand(BRANDS[0].id);
+      props.onClose?.();
     } catch (error) {
       console.error("Error adding insight:", error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   return (
     <Modal {...props}>
       <h1 className={styles.heading}>Add a new insight</h1>
-      <form className={styles.form} onSubmit={addInsight}>
+      <form className={styles.form} onSubmit={handleSubmit}>
         <label className={styles.field}>
           Brand
           <select

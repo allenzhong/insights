@@ -1,30 +1,14 @@
-import deno from "@deno/vite-plugin";
-import { Port } from "../lib/utils/index.ts";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { defineConfig, searchForWorkspaceRoot } from "vite";
-import process from "node:process";
-
-const env = {
-  clientPort: Port.parse(Deno.env.get("CLIENT_PORT")),
-  servereBaseUrl: String(Deno.env.get("SERVER_BASE_URL")),
-  serverPort: Port.parse(Deno.env.get("SERVER_PORT")),
-};
 
 export default defineConfig({
   root: "./src",
-  build: {
-    outDir: "./dist",
-    emptyOutDir: true,
-  },
-  plugins: [react(), deno()],
+  plugins: [react()],
   server: {
-    port: env.clientPort,
-    fs: {
-      allow: [searchForWorkspaceRoot(process.cwd()), "../../node_modules"],
-    },
+    port: 3000,
     proxy: {
       "/api": {
-        target: `${env.servereBaseUrl}:${env.serverPort}`,
+        target: "http://localhost:8080",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
@@ -33,5 +17,6 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
+    globals: true,
   },
 });
